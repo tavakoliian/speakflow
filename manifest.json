@@ -1,7 +1,7 @@
 {
   "id": "speakflow",
   "name": "Speakflow",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "minAppVersion": "1.5.0",
   "description": "High-accuracy live voice dictation powered by Google Gemini AI directly at the cursor.",
   "author": "Amir Tavakolian",
