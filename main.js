@@ -3174,7 +3174,7 @@ class ContextConfirmModal extends obsidian.Modal {
 const AUTHOR_LINKS = [
   ['LinkedIn', 'linkedin.com/in/tavakoliian', 'https://linkedin.com/in/tavakoliian'],
   ['Telegram', '@tavakoliian', 'https://t.me/tavakoliian'],
-  ['GitHub', 'github.com/tavakoliian', 'https://github.com/amirtavakolian/']
+  ['GitHub', 'github.com/tavakoliian', 'https://github.com/tavakoliian/']
 ];
 
 class AboutModal extends obsidian.Modal {
@@ -3400,3 +3400,5 @@ class GeminiVoiceSettingModal extends obsidian.Modal {
     }
   }
 }
+
+/* nosourcemap */

@@ -1,6 +1,38 @@
 /* Speakflow - Obsidian Plugin Styles */
 
 /* ================================================================== *
+ *  Theme variables: dark values are the default, light overrides follow
+ * ================================================================== */
+
+body {
+  --gvd-field-bg: rgba(0, 0, 0, 0.3);
+  --gvd-placeholder: var(--text-faint, #777777);
+  --gvd-faint: var(--text-faint, #888888);
+  --gvd-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  --gvd-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --gvd-link: #a78bfa;
+  --gvd-link-hover: #c4b5fd;
+  --gvd-ok: #3ecf8e;
+  --gvd-err: #f87171;
+  --gvd-chip-bg: rgba(167, 139, 250, 0.14);
+  --gvd-chip-text: #c4b5fd;
+}
+
+body.theme-light {
+  --gvd-field-bg: var(--background-secondary, #f2f3f5);
+  --gvd-placeholder: var(--text-muted, #6b7280);
+  --gvd-faint: var(--text-muted, #6b7280);
+  --gvd-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+  --gvd-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.18);
+  --gvd-link: #6d28d9;
+  --gvd-link-hover: #4c1d95;
+  --gvd-ok: #047857;
+  --gvd-err: #dc2626;
+  --gvd-chip-bg: rgba(109, 40, 217, 0.1);
+  --gvd-chip-text: #5b21b6;
+}
+
+/* ================================================================== *
  *  Floating panel (compact; the whole panel is the drag handle)
  * ================================================================== */
 
@@ -10,20 +42,20 @@
   background-color: var(--background-primary, #202020);
   border: 1px solid var(--background-modifier-border, #333333);
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--gvd-shadow);
   padding: 8px 10px;
   display: flex;
   flex-direction: column;
   user-select: none;
   cursor: grab;
-  direction: ltr !important;
+  direction: ltr;
   width: 284px;
   max-width: calc(100vw - 16px);
   font-family: var(--font-interface, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
 }
 
 .gvd-floating-panel.gvd-hidden {
-  display: none !important;
+  display: none;
 }
 
 .gvd-floating-panel.gvd-dragging {
@@ -169,7 +201,7 @@
   width: 100%;
   padding: 0 28px 0 10px;
   border-radius: 8px;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: var(--gvd-field-bg);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aaaaaa' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 9px center;
@@ -208,7 +240,7 @@
 .gvd-badge {
   font-size: 11px;
   font-weight: 500;
-  color: #3ecf8e;
+  color: var(--gvd-ok);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -227,7 +259,7 @@
   height: 100%;
   width: 0%;
   border-radius: 3px;
-  background-color: #3ecf8e;
+  background-color: var(--gvd-ok);
   transition: width 0.08s linear;
 }
 
@@ -242,7 +274,7 @@
   overflow: visible; /* the form is compact enough to never need a scrollbar */
   border-radius: 20px;
   padding: 22px 28px 20px;
-  direction: ltr !important;
+  direction: ltr;
 }
 
 .modal.gvd-modal .modal-content {
@@ -253,7 +285,7 @@
 }
 
 .gvd-settings-modal {
-  direction: ltr !important;
+  direction: ltr;
 }
 
 .gvd-modal-header {
@@ -313,7 +345,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  direction: ltr !important;
+  direction: ltr;
 }
 
 .gvd-tab .gvd-form {
@@ -358,7 +390,7 @@
   height: 42px;
   padding: 0 46px 0 16px;
   border-radius: 12px;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: var(--gvd-field-bg);
   border: 1px solid var(--background-modifier-border, #333333);
   box-shadow: none;
   color: var(--text-normal, #dcddde);
@@ -372,7 +404,7 @@
 }
 
 .gvd-form input.gvd-input::placeholder {
-  color: var(--text-faint, #777777);
+  color: var(--gvd-placeholder);
 }
 
 .gvd-form .gvd-eye-btn {
@@ -409,7 +441,7 @@
   height: 42px;
   padding: 0 40px 0 18px;
   border-radius: 12px;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: var(--gvd-field-bg);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23aaaaaa' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
@@ -437,7 +469,7 @@
   padding: 0;
   border-radius: 12px;
   border: 1px solid var(--background-modifier-border, #333333);
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: var(--gvd-field-bg);
   box-shadow: none;
   color: var(--text-muted, #aaaaaa);
   display: flex;
@@ -513,14 +545,16 @@
 }
 
 /* ---- Check-key result states ---- */
-.gvd-form button.gvd-valid {
-  background-color: #10b981 !important;
-  color: #ffffff !important;
+.gvd-form button.gvd-btn.gvd-btn-purple.gvd-valid,
+.gvd-form button.gvd-btn.gvd-btn-purple.gvd-valid:hover:not(:disabled) {
+  background-color: #10b981;
+  color: #ffffff;
 }
 
-.gvd-form button.gvd-invalid {
-  background-color: #ef4444 !important;
-  color: #ffffff !important;
+.gvd-form button.gvd-btn.gvd-btn-purple.gvd-invalid,
+.gvd-form button.gvd-btn.gvd-btn-purple.gvd-invalid:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
 }
 
 
@@ -579,7 +613,7 @@
   font-weight: 700;
   letter-spacing: 1.2px;
   text-transform: uppercase;
-  color: var(--text-faint, #888888);
+  color: var(--gvd-faint);
   margin-bottom: -6px;
 }
 
@@ -638,13 +672,13 @@
   width: fit-content;
   margin-top: 2px;
   font-size: 12px;
-  color: #a78bfa;
+  color: var(--gvd-link);
   text-decoration: underline;
   cursor: pointer;
 }
 
 .gvd-key-link:hover {
-  color: #c4b5fd;
+  color: var(--gvd-link-hover);
 }
 
 .gvd-options {
@@ -681,7 +715,7 @@
   height: 30px;
   padding: 0 8px 0 10px;
   border-radius: 8px;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: var(--gvd-field-bg);
   border: 1px solid var(--background-modifier-border, #3d3d3d);
   box-shadow: none;
   color: var(--text-normal, #dcddde);
@@ -721,7 +755,7 @@
   border-radius: 10px;
   background-color: var(--background-primary, #1e1e1e);
   border: 1px solid var(--background-modifier-border, #3d3d3d);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--gvd-shadow-lg);
   direction: ltr;
   font-family: var(--font-interface, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
   user-select: none;
@@ -841,7 +875,7 @@
 }
 
 .gvd-info-item:first-of-type .gvd-info-name {
-  color: #a78bfa;
+  color: var(--gvd-link);
 }
 
 .gvd-info-text {
@@ -857,7 +891,7 @@
   border-top: 1px solid var(--background-modifier-border, #3d3d3d);
   font-size: 12.5px;
   line-height: 1.5;
-  color: var(--text-faint, #888888);
+  color: var(--gvd-faint);
 }
 
 
@@ -889,7 +923,7 @@
   gap: 12px;
   padding: 10px 14px;
   border-radius: 10px;
-  background-color: rgba(0, 0, 0, 0.25);
+  background-color: var(--gvd-field-bg);
   border: 1px solid var(--background-modifier-border, #3d3d3d);
 }
 
@@ -905,19 +939,19 @@
   flex: 1;
   min-width: 0;
   font-size: 13.5px;
-  color: #a78bfa;
+  color: var(--gvd-link);
   text-decoration: underline;
   cursor: pointer;
   word-break: break-all;
 }
 
 .gvd-about-link:hover {
-  color: #c4b5fd;
+  color: var(--gvd-link-hover);
 }
 
 .gvd-about-icon {
   display: flex;
-  color: var(--text-faint, #888888);
+  color: var(--gvd-faint);
 }
 
 .gvd-about-icon svg {
@@ -978,7 +1012,7 @@
   background-color: var(--background-primary, #202020);
   border: 1px solid var(--background-modifier-border, #333333);
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--gvd-shadow);
   direction: ltr;
   font-family: var(--font-interface, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
 }
@@ -996,7 +1030,7 @@
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--text-faint, #888888);
+  color: var(--gvd-faint);
 }
 
 .gvd-answer-actions {
@@ -1054,12 +1088,12 @@
 }
 
 .gvd-q-label {
-  color: #a78bfa;
+  color: var(--gvd-link);
 }
 
 .gvd-a-label {
   margin-top: 9px;
-  color: #3ecf8e;
+  color: var(--gvd-ok);
 }
 
 .gvd-q-text,
@@ -1076,12 +1110,12 @@
 }
 
 .gvd-answer-box .gvd-muted {
-  color: var(--text-faint, #888888);
+  color: var(--gvd-faint);
   font-style: italic;
 }
 
 .gvd-answer-box .gvd-error {
-  color: #f87171;
+  color: var(--gvd-err);
 }
 
 .gvd-a-text p {
@@ -1118,7 +1152,7 @@
   min-width: 30px;
   padding: 0;
   border: 1px solid var(--background-modifier-border, #3d3d3d);
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--gvd-field-bg);
   box-shadow: none;
   color: var(--text-normal, #dcddde);
   display: flex;
@@ -1134,7 +1168,7 @@
 
 .gvd-floating-panel button.gvd-ask-gear:hover,
 .gvd-floating-panel button.gvd-ask-gear.gvd-open {
-  color: #ffffff;
+  color: var(--text-normal, #ffffff);
   border-color: #8b5cf6;
 }
 
@@ -1165,7 +1199,7 @@
 
 .gvd-answer-tag {
   font-size: 10.5px;
-  color: #a78bfa;
+  color: var(--gvd-link);
   white-space: nowrap;
 }
 
@@ -1195,7 +1229,7 @@
   padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid var(--background-modifier-border, #3d3d3d);
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: var(--gvd-field-bg);
   box-shadow: none;
   color: var(--text-normal, #dcddde);
   font-family: var(--font-interface, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
@@ -1206,7 +1240,7 @@
 }
 
 .gvd-ask-settings textarea.gvd-ask-textarea::placeholder {
-  color: var(--text-faint, #777777);
+  color: var(--gvd-placeholder);
   font-style: italic;
 }
 
@@ -1224,7 +1258,7 @@
 
 .gvd-ask-saved {
   font-size: 11px;
-  color: var(--text-faint, #888888);
+  color: var(--gvd-faint);
 }
 
 .gvd-ask-settings button.gvd-ask-clear {
@@ -1233,13 +1267,13 @@
   background: transparent;
   box-shadow: none;
   font-size: 12px;
-  color: #a78bfa;
+  color: var(--gvd-link);
   cursor: pointer;
   border-radius: 6px;
 }
 
 .gvd-ask-settings button.gvd-ask-clear:hover {
-  background: rgba(167, 139, 250, 0.14);
+  background: var(--gvd-chip-bg);
 }
 
 
@@ -1255,8 +1289,8 @@
   margin-bottom: 6px;
   padding: 2px 9px;
   border-radius: 999px;
-  background-color: rgba(167, 139, 250, 0.14);
-  color: #c4b5fd;
+  background-color: var(--gvd-chip-bg);
+  color: var(--gvd-chip-text);
   font-size: 11px;
   line-height: 1.5;
 }
@@ -1292,4 +1326,38 @@
 .menu-item.gvd-menu-info:hover .menu-item-title,
 .menu-item.gvd-menu-info:hover .menu-item-icon {
   color: #f87171;
+}
+
+
+/* ================================================================== *
+ *  Light theme: parts that cannot be driven by variables
+ * ================================================================== */
+
+/* darker drop-down arrows on light backgrounds */
+body.theme-light .gvd-form select.gvd-select-field {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23555555' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+body.theme-light .gvd-floating-panel .gvd-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23555555' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* the dark "Cancel" button becomes a light grey one */
+body.theme-light .gvd-form button.gvd-btn-dark {
+  background-color: #e5e7eb;
+  color: #1f2937;
+}
+
+body.theme-light .gvd-form button.gvd-btn-dark:hover {
+  background-color: #d1d5db;
+}
+
+/* soft border so light-grey fields stay visible on a white panel */
+body.theme-light .gvd-floating-panel .gvd-dd-btn,
+body.theme-light .gvd-form input.gvd-input,
+body.theme-light .gvd-form select.gvd-select-field,
+body.theme-light .gvd-form .gvd-icon-btn,
+body.theme-light .gvd-ask-settings textarea.gvd-ask-textarea,
+body.theme-light .gvd-floating-panel button.gvd-ask-gear {
+  border-color: var(--background-modifier-border, #d1d5db);
 }
