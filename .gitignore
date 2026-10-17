@@ -1,0 +1,14 @@
+data.json
+
+# Dependencies and logs
+node_modules/
+*.log
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Zips made for manual installs
+*.zip
