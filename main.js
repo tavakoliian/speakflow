@@ -64,6 +64,9 @@ const DEFAULT_SETTINGS = {
   microphoneId: '',
   liveSpeed: 'turbo',
   askAi: false,     // "Ask AI" check box under the record button
+  translate: false,        // "Translate" check box next to Ask AI: speak one language, get text in another
+  translateFrom: 'auto',   // language you speak while Translate is on ('auto' = detect it)
+  translateTo: 'en',       // language the text is written in while Translate is on
   askPrompt: '',    // standing instructions sent to the AI with every question
   askContext: 'none',          // what part of the note is sent with a question
   askContextConfirmed: false,  // the user agreed that note content may be sent to Google
@@ -667,6 +670,9 @@ module.exports = class GeminiVoiceDictationPlugin extends obsidian.Plugin {
     // A key saved by an older version (before keys were verified) has been in use: treat it as verified.
     if (data && data.apiKey && typeof data.keyVerified === 'undefined') this.settings.keyVerified = true;
     if (!LANGUAGE_MAP[this.settings.language]) this.settings.language = 'auto';
+    if (!LANGUAGE_MAP[this.settings.translateFrom]) this.settings.translateFrom = DEFAULT_SETTINGS.translateFrom;
+    if (!LANGUAGE_MAP[this.settings.translateTo] || this.settings.translateTo === 'auto') this.settings.translateTo = DEFAULT_SETTINGS.translateTo;
+    if (this.settings.translate && this.settings.askAi) this.settings.translate = false; // the two modes exclude each other
     if (!ASK_CONTEXT_OPTIONS.some(([v]) => v === this.settings.askContext)) this.settings.askContext = 'none';
     if (!SPEED_PRESETS[this.settings.liveSpeed]) this.settings.liveSpeed = DEFAULT_SETTINGS.liveSpeed;
 
@@ -897,17 +903,20 @@ module.exports = class GeminiVoiceDictationPlugin extends obsidian.Plugin {
    * Language picker for the panel: the common languages first, then a red "More languages"
    * row that expands the list in place with every other supported language.
    */
-  createLanguageDropdown(parent) {
+  createLanguageDropdown(parent, opts = {}) {
+    const key = opts.key || 'language';              // which setting this list edits
+    const allowAuto = opts.allowAuto !== false;      // "Auto-detect" makes no sense as a target language
+    const featured = allowAuto ? FEATURED_LANGS : FEATURED_LANGS.filter((c) => c !== 'auto');
     const btn = parent.createEl('button', {
       cls: 'gvd-dd-btn',
-      attr: { type: 'button', 'aria-haspopup': 'listbox', title: 'Spoken language' }
+      attr: { type: 'button', 'aria-haspopup': 'listbox', title: opts.title || 'Spoken language' }
     });
     const label = btn.createSpan({ cls: 'gvd-dd-label' });
     const chev = btn.createSpan({ cls: 'gvd-dd-chev' });
     obsidian.setIcon(chev, 'chevron-down');
 
     const refreshLabel = () => {
-      label.textContent = (LANGUAGE_MAP[this.settings.language] || LANGUAGE_MAP.auto).label;
+      label.textContent = (LANGUAGE_MAP[this.settings[key]] || LANGUAGE_MAP[allowAuto ? 'auto' : 'en']).label;
     };
     refreshLabel();
 
@@ -927,7 +936,7 @@ module.exports = class GeminiVoiceDictationPlugin extends obsidian.Plugin {
     };
 
     const choose = (code) => {
-      this.settings.language = code;
+      this.settings[key] = code;
       this.saveSettings();
       refreshLabel();
       close();
@@ -939,14 +948,14 @@ module.exports = class GeminiVoiceDictationPlugin extends obsidian.Plugin {
 
       const addItem = (code) => {
         const item = list.createDiv({
-          cls: 'gvd-dd-item' + (code === this.settings.language ? ' gvd-selected' : ''),
+          cls: 'gvd-dd-item' + (code === this.settings[key] ? ' gvd-selected' : ''),
           text: LANGUAGE_MAP[code].label,
           attr: { role: 'option' }
         });
         item.onclick = () => choose(code);
       };
 
-      FEATURED_LANGS.forEach(addItem);
+      featured.forEach(addItem);
 
       const more = list.createDiv({ cls: 'gvd-dd-more' });
       more.createSpan({ text: expanded ? 'Fewer languages' : 'More languages' });
@@ -964,7 +973,7 @@ module.exports = class GeminiVoiceDictationPlugin extends obsidian.Plugin {
     const open = () => {
       this.closeLanguageDropdown();
       // If the chosen language is one of the "more" ones, start expanded so it is visible.
-      expanded = !FEATURED_LANGS.includes(this.settings.language);
+      expanded = !FEATURED_LANGS.includes(this.settings[key]);
 
       list = document.body.createDiv({ cls: 'gvd-dd-list', attr: { role: 'listbox' } });
       render();
@@ -1004,6 +1013,12 @@ module.exports = class GeminiVoiceDictationPlugin extends obsidian.Plugin {
     };
 
     btn.onclick = () => (list ? close() : open());
+    return btn;
+  }
+
+  /** Is Translate on for dictation? (Ask AI answers in the language you speak, so it never translates.) */
+  translateActive() {
+    return !!this.settings.translate && !this.askMode;
   }
 
   renderPanel() {
@@ -1026,7 +1041,12 @@ module.exports = class GeminiVoiceDictationPlugin extends obsidian.Plugin {
 
       const mid = row.createDiv({ cls: 'gvd-right-col' });
       mid.createDiv({ cls: 'gvd-panel-label', text: 'Spoken Language' });
-      this.createLanguageDropdown(mid);
+      const spokenBtn = this.createLanguageDropdown(mid);
+      if (this.settings.translate) {
+        // While translating, the "From" list below says which language you speak.
+        spokenBtn.disabled = true;
+        spokenBtn.setAttribute('title', 'Not used while Translate is on – choose the language you speak in "From".');
+      }
 
       const gearBtn = row.createEl('button', { cls: 'gvd-gear-btn', attr: { 'aria-label': 'Settings & API key' } });
       obsidian.setIcon(gearBtn, 'settings');
@@ -1042,6 +1062,15 @@ module.exports = class GeminiVoiceDictationPlugin extends obsidian.Plugin {
       const askCheck = askLabel.createEl('input', { attr: { type: 'checkbox' } });
       askCheck.checked = !!this.settings.askAi;
       askLabel.createSpan({ text: 'Ask AI' });
+
+      // "Translate": speak in the From language, the text written in the note is in the To language.
+      const trLabel = askRow.createEl('label', {
+        cls: 'gvd-ask-check',
+        attr: { title: 'Translate: speak in one language and the text is written in the note in another language.' }
+      });
+      const trCheck = trLabel.createEl('input', { attr: { type: 'checkbox' } });
+      trCheck.checked = !!this.settings.translate;
+      trLabel.createSpan({ text: 'Translate' });
 
       this.askGearEl = askRow.createEl('button', {
         cls: 'gvd-ask-gear',
@@ -1061,13 +1090,41 @@ module.exports = class GeminiVoiceDictationPlugin extends obsidian.Plugin {
       this.askCtxEl.onclick = () => this.openAskContextMenu();
       this.refreshAskGear();
 
+      trCheck.onchange = () => {
+        this.settings.translate = trCheck.checked;
+        if (trCheck.checked && this.settings.askAi) {
+          this.settings.askAi = false; // Ask AI and Translate cannot be on together
+          this.closeAskSettings();
+        }
+        this.saveSettings();
+        this.renderPanel(); // shows / hides the From and To boxes
+        this.clampPanel();  // the panel got taller: keep it on screen
+      };
+
       askCheck.onchange = () => {
         this.settings.askAi = askCheck.checked;
+        if (askCheck.checked && this.settings.translate) {
+          this.settings.translate = false;
+          this.saveSettings();
+          this.renderPanel();
+          this.clampPanel();
+          return;
+        }
         this.saveSettings();
         if (this.askGearEl) this.askGearEl.classList.toggle('gvd-off', !askCheck.checked);
         if (this.askCtxEl) this.askCtxEl.classList.toggle('gvd-off', !askCheck.checked);
         if (!askCheck.checked) this.closeAskSettings();
       };
+
+      if (this.settings.translate) {
+        const box = this.panelEl.createDiv({ cls: 'gvd-translate-box' });
+        const fromCol = box.createDiv({ cls: 'gvd-translate-col' });
+        fromCol.createDiv({ cls: 'gvd-panel-label', text: 'From (the language you speak)' });
+        this.createLanguageDropdown(fromCol, { key: 'translateFrom', allowAuto: true, title: 'Language you speak' });
+        const toCol = box.createDiv({ cls: 'gvd-translate-col' });
+        toCol.createDiv({ cls: 'gvd-panel-label', text: 'To (the language that is written)' });
+        this.createLanguageDropdown(toCol, { key: 'translateTo', allowAuto: false, title: 'Language the text is written in' });
+      }
     } else {
       // Left: timer / status / level meter. Right (left to right): pause, stop.
       const info = row.createDiv({ cls: 'gvd-right-col' });
@@ -1462,8 +1519,9 @@ module.exports = class GeminiVoiceDictationPlugin extends obsidian.Plugin {
   badgeText() {
     if (this.askMode) return this.isPaused ? (this.askBusy > 0 ? 'Asking AI…' : 'Paused') : 'Ask AI: listening';
     if (this.isPaused) return 'Paused';
-    if (this.pendingJobs > 0) return 'Transcribing…';
-    return Date.now() - this.lastEmptyAt < 4000 ? 'Nothing recognized' : 'Live at cursor...';
+    const translating = this.translateActive();
+    if (this.pendingJobs > 0) return translating ? 'Translating…' : 'Transcribing…';
+    return Date.now() - this.lastEmptyAt < 4000 ? 'Nothing recognized' : translating ? 'Live translation...' : 'Live at cursor...';
   }
 
   /* ------------------------------ Ask AI ------------------------------ */
@@ -2317,19 +2375,40 @@ module.exports = class GeminiVoiceDictationPlugin extends obsidian.Plugin {
 
   buildPayload(wav, modelName) {
     const base64Data = obsidian.arrayBufferToBase64(wav);
-    const langInfo = LANGUAGE_MAP[this.settings.language] || LANGUAGE_MAP.auto;
-
-    const langLine = langInfo.promptLang
-      ? `The speech is most likely ${langInfo.promptLang}, but always keep whatever language is actually spoken.`
-      : 'Detect the spoken language automatically.';
-
-    const promptText =
-      `Transcribe this audio verbatim. ${langLine} ` +
-      `Write the words exactly as spoken, in the original language and its native script ` +
-      `(for example Persian in Persian script, never in Latin transliteration). ` +
-      `Do not translate, summarize, answer, or add anything. Add natural punctuation. ` +
-      `Output only the transcript text. Never invent or guess words, and never output greetings or pleasantries that were not spoken. ` +
+    const noSpeechRule =
+      `Never invent or guess words, and never output greetings or pleasantries that were not spoken. ` +
       `If the audio contains only silence, breathing, blowing, wind, fan noise, clicks or other non-speech sounds, output nothing.`;
+    let promptText;
+
+    if (this.translateActive()) {
+      // Translate mode: one request does both steps, so text still streams into the note.
+      const fromInfo = LANGUAGE_MAP[this.settings.translateFrom] || LANGUAGE_MAP.auto;
+      const toInfo = LANGUAGE_MAP[this.settings.translateTo] || LANGUAGE_MAP.en;
+      const to = toInfo.promptLang;
+      const fromLine = fromInfo.promptLang
+        ? `The speaker is speaking ${fromInfo.promptLang}.`
+        : 'Detect the spoken language automatically.';
+      promptText =
+        `Listen to this audio and translate what is said into ${to}. ${fromLine} ` +
+        `Write the translation in ${to} using the normal script of that language ` +
+        `(never a Latin transliteration, unless ${to} is normally written in the Latin alphabet). ` +
+        `Output only the ${to} translation: no original text, no notes, no explanations, no quotation marks. ` +
+        `If part of the speech is already in ${to}, keep it as spoken. ` +
+        `Do not answer, summarize, or add anything. Add natural punctuation. ` +
+        noSpeechRule;
+    } else {
+      const langInfo = LANGUAGE_MAP[this.settings.language] || LANGUAGE_MAP.auto;
+      const langLine = langInfo.promptLang
+        ? `The speech is most likely ${langInfo.promptLang}, but always keep whatever language is actually spoken.`
+        : 'Detect the spoken language automatically.';
+      promptText =
+        `Transcribe this audio verbatim. ${langLine} ` +
+        `Write the words exactly as spoken, in the original language and its native script ` +
+        `(for example Persian in Persian script, never in Latin transliteration). ` +
+        `Do not translate, summarize, answer, or add anything. Add natural punctuation. ` +
+        `Output only the transcript text. ` +
+        noSpeechRule;
+    }
 
     const generationConfig = { temperature: 0, maxOutputTokens: 2048 };
     // Gemini 2.5 Flash "thinks" by default and thinking tokens eat the output budget;
@@ -3174,7 +3253,7 @@ class ContextConfirmModal extends obsidian.Modal {
 const AUTHOR_LINKS = [
   ['LinkedIn', 'linkedin.com/in/tavakoliian', 'https://linkedin.com/in/tavakoliian'],
   ['Telegram', '@tavakoliian', 'https://t.me/tavakoliian'],
-  ['GitHub', 'github.com/tavakoliian', 'https://github.com/tavakoliian/']
+  ['GitHub', 'github.com/tavakoliian', 'https://github.com/amirtavakolian/']
 ];
 
 class AboutModal extends obsidian.Modal {
@@ -3400,5 +3479,3 @@ class GeminiVoiceSettingModal extends obsidian.Modal {
     }
   }
 }
-
-/* nosourcemap */
