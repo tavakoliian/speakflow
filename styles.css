@@ -1100,7 +1100,7 @@
 
 
 /* ================================================================== *
- *  Ask AI: gear next to the check box + the "AI instructions" box
+ *  Feature-specific AI instructions gear + the "AI instructions" box
  * ================================================================== */
 
 .gvd-ask-row {
@@ -1143,7 +1143,7 @@
   height: 18px;
 }
 
-/* purple dot: custom instructions are set */
+/* purple dot: at least one feature has custom instructions */
 .gvd-floating-panel button.gvd-ask-gear.gvd-on::after {
   content: "";
   position: absolute;
@@ -1186,6 +1186,48 @@
   font-size: 12px;
   line-height: 1.5;
   color: var(--text-muted, #999999);
+}
+
+.gvd-instruction-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: 9px;
+}
+
+.gvd-ask-settings button.gvd-instruction-tab {
+  position: relative;
+  min-width: 0;
+  padding: 5px 4px;
+  border: 1px solid var(--background-modifier-border, #3d3d3d);
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.22);
+  box-shadow: none;
+  color: var(--text-muted, #999999);
+  font-size: 11px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.gvd-ask-settings button.gvd-instruction-tab:hover,
+.gvd-ask-settings button.gvd-instruction-tab.gvd-active {
+  border-color: #8b5cf6;
+  color: var(--text-normal, #dcddde);
+}
+
+.gvd-ask-settings button.gvd-instruction-tab.gvd-active {
+  background: rgba(139, 92, 246, 0.18);
+}
+
+.gvd-ask-settings button.gvd-instruction-tab.gvd-has-content::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #a78bfa;
 }
 
 .gvd-ask-settings textarea.gvd-ask-textarea {
@@ -1323,4 +1365,50 @@
 
 .gvd-floating-panel .gvd-dd-btn:disabled:hover {
   border-color: var(--background-modifier-border, #3d3d3d);
+}
+
+
+/* ================================================================== *
+ *  Convert to 3D: progress bar in the answer box
+ * ================================================================== */
+
+.gvd-prog {
+  margin-top: 8px;
+}
+
+.gvd-prog.gvd-off {
+  display: none;
+}
+
+.gvd-prog-track {
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background-color: var(--background-modifier-border, #3d3d3d);
+}
+
+.gvd-prog-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #7c3aed, #3ecf8e);
+  transition: width 0.4s ease;
+}
+
+/* before any text arrives: a sliding stripe instead of a fixed width */
+.gvd-prog-fill.gvd-indeterminate {
+  width: 30% !important;
+  animation: gvd-slide 1.3s ease-in-out infinite alternate;
+}
+
+@keyframes gvd-slide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(230%); }
+}
+
+.gvd-prog-label {
+  margin-top: 4px;
+  font-size: 11px;
+  font-family: var(--font-monospace, monospace);
+  color: var(--text-muted, #999999);
 }
